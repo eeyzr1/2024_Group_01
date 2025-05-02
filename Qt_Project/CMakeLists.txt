@@ -21,7 +21,6 @@ set(PROJECT_SOURCES
         ModelPart.h
         ModelPartList.cpp
         ModelPartList.h
-        icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
