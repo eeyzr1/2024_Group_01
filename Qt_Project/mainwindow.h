@@ -20,6 +20,9 @@ public:
 public slots:
     void handleButton();
 
+signals:
+    void statusUpdateMessage(const QString &message, int timeout);
+
 private:
     Ui::MainWindow *ui;
 };
