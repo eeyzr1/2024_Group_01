@@ -21,13 +21,14 @@ set(PROJECT_SOURCES
         ModelPart.h
         ModelPartList.cpp
         ModelPartList.h
-        icons
+        icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(Qt_Project
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        icons.qrc
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Qt_Project APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

@@ -61,5 +61,16 @@ void MainWindow::handleTreeClicked() {
 }
 
 void MainWindow::on_actionOpen_File_triggered() {
-    emit statusUpdateMessage(QString("Open File action triggered"), 0);
+    QString fileName = QFileDialog::getOpenFileName(
+        this,
+        tr("Open File"),
+        "C:\\",
+        tr("STL Files (*.stl);;Text Files (*.txt)")
+        );
+
+    if (!fileName.isEmpty()) {
+        emit statusUpdateMessage("Selected: " + fileName, 5000);
+    } else {
+        emit statusUpdateMessage("Open file cancelled", 2000);
+    }
 }
