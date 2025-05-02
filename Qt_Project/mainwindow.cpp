@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->partList = new ModelPartList("PartsList");
 
     ui->treeView->setModel(this->partList);
+    ui->treeView->addAction(ui->actionItem_Options) ;
 
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::handleTreeClicked);
 
@@ -77,6 +78,15 @@ void MainWindow::on_actionOpen_File_triggered() {
 }
 
 void MainWindow::on_pushButton_2_released() {
+    OptionDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        emit statusUpdateMessage("Dialog accepted", 0);
+    } else {
+        emit statusUpdateMessage("Dialog rejected", 0);
+    }
+}
+
+void MainWindow::on_actionItem_Options_triggered() {
     OptionDialog dialog(this);
     if (dialog.exec() == QDialog::Accepted) {
         emit statusUpdateMessage("Dialog accepted", 0);
