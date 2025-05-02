@@ -24,6 +24,7 @@ public slots:
     void handleButton();
     void handleTreeClicked();
     void on_actionOpen_File_triggered();
+    void on_pushButton_2_released();
 
 signals:
     void statusUpdateMessage(const QString &message, int timeout);

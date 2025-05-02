@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QMessageBox>
+#include "optiondialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -72,5 +73,14 @@ void MainWindow::on_actionOpen_File_triggered() {
         emit statusUpdateMessage("Selected: " + fileName, 5000);
     } else {
         emit statusUpdateMessage("Open file cancelled", 2000);
+    }
+}
+
+void MainWindow::on_pushButton_2_released() {
+    OptionDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        emit statusUpdateMessage("Dialog accepted", 0);
+    } else {
+        emit statusUpdateMessage("Dialog rejected", 0);
     }
 }
