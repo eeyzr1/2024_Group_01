@@ -22,5 +22,8 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+
+signals:
+    void statusUpdateMessage(const QString& message, int timeout);
 };
 #endif // MAINWINDOW_H
