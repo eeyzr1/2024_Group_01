@@ -2,9 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "ModelPart.h"
 #include "ModelPartList.h"
-#include "optiondialog.h"
+#include <vtkGenericOpenGLRenderWindow.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -36,5 +35,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     ModelPartList* partList;
+    vtkSmartPointer<vtkRenderer> renderer;
+    vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
 };
 #endif // MAINWINDOW_H

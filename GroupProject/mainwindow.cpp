@@ -2,6 +2,14 @@
 #include "./ui_mainwindow.h"
 #include <QMessageBox>
 #include <QFileDialog>
+#include "ModelPart.h"
+#include "ModelPartList.h"
+#include <vtkCylinderSource.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRenderer.h>
+#include <vtkProperty.h>
+#include <vtkCamera.h>
+#include "optiondialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -38,6 +46,38 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     ui->treeView->addAction(ui->actionItem_Options);
+
+
+    renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+    ui->vtkWidget->setRenderWindow(renderWindow);
+
+
+    renderer = vtkSmartPointer<vtkRenderer>::New();
+    renderWindow->AddRenderer(renderer);
+
+
+    vtkNew<vtkCylinderSource> cylinder;
+    cylinder->SetResolution(8);
+
+
+    vtkNew<vtkPolyDataMapper> cylinderMapper;
+    cylinderMapper->SetInputConnection(cylinder->GetOutputPort());
+
+
+    vtkNew<vtkActor> cylinderActor;
+    cylinderActor->SetMapper(cylinderMapper);
+    cylinderActor->GetProperty()->SetColor(1.0, 0.0, 0.35);
+    cylinderActor->RotateX(30.0);
+    cylinderActor->RotateY(45.0);
+
+
+    renderer->AddActor(cylinderActor);
+
+
+    renderer->ResetCamera();
+    renderer->GetActiveCamera()->Azimuth(30);
+    renderer->GetActiveCamera()->Elevation(30);
+    renderer->ResetCameraClippingRange();
 }
 
 MainWindow::~MainWindow()

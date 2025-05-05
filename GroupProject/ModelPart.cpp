@@ -13,8 +13,8 @@
 /* Commented out for now, will be uncommented later when you have
  * installed the VTK library
  */
-//#include <vtkSmartPointer.h>
-//#include <vtkDataSetMapper.h>
+#include <vtkSmartPointer.h>
+#include <vtkDataSetMapper.h>
 
 
 
@@ -157,7 +157,7 @@ void ModelPart::loadSTL( QString fileName ) {
      */
 //}
 
-//vtkActor* ModelPart::getNewActor() {
+vtkActor* ModelPart::getNewActor() {
     /* This is a placeholder function that you will need to modify if you want to use it
      * 
      * The default mapper/actor combination can only be used to render the part in 
@@ -180,7 +180,7 @@ void ModelPart::loadSTL( QString fileName ) {
     
 
     /* The new vtkActor pointer must be returned here */
-//    return nullptr;
+    return nullptr;
     
-//}
+}
 
