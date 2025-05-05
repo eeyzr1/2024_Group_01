@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent)
             childItem->appendChild(childChildItem);
         }
     }
+
+    ui->treeView->addAction(ui->actionItem_Options);
 }
 
 MainWindow::~MainWindow()
@@ -73,6 +75,18 @@ void MainWindow::on_actionOpen_File_triggered()
 
 
 void MainWindow::on_pushButton_2_clicked()
+{
+    OptionDialog dialog(this);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        emit statusUpdateMessage("Dialog accepted", 0);
+    } else {
+        emit statusUpdateMessage("Dialog rejected", 0);
+    }
+}
+
+
+void MainWindow::on_actionItem_Options_triggered()
 {
     OptionDialog dialog(this);
 
