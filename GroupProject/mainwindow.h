@@ -24,6 +24,10 @@ public:
 
 public slots:
     void handleButton();
+    void handleTreeClicked();
+
+private slots:
+    void on_actionOpen_File_triggered();
 
 private:
     Ui::MainWindow *ui;

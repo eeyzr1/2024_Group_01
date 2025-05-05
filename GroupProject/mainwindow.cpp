@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->pushButton, &QPushButton::released, this, &MainWindow::handleButton);
     connect(this, &MainWindow::statusUpdateMessage, ui->statusbar, &QStatusBar::showMessage);
+    connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::handleTreeClicked);
 
     this->partList = new ModelPartList("PartsList");
 
@@ -45,3 +46,17 @@ void MainWindow::handleButton()
 {
     emit statusUpdateMessage(QString("Add button was clicked"), 0);
 }
+
+void MainWindow::handleTreeClicked()
+{
+    QModelIndex index = ui->treeView->currentIndex();
+    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+    QString text = selectedPart->data(0).toString();
+    emit statusUpdateMessage("The selected item is: " + text, 0);
+}
+
+void MainWindow::on_actionOpen_File_triggered()
+{
+    emit statusUpdateMessage(QString("Open File action triggered"), 0);
+}
+
