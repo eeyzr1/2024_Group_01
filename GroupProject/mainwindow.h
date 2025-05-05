@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "ModelPart.h"
 #include "ModelPartList.h"
+#include "optiondialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -28,6 +29,7 @@ public slots:
 
 private slots:
     void on_actionOpen_File_triggered();
+    void on_pushButton_2_clicked();
 
 private:
     Ui::MainWindow *ui;
