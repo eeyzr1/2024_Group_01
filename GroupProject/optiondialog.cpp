@@ -30,6 +30,7 @@ void OptionDialog::setModelPart(ModelPart* part)
         return;
     part->set(0, ui->lineEditName->text());
     part->setVisible(ui->isVisible->isChecked());
+    part->set(1, ui->isVisible->isChecked());
     part->setColour(static_cast<unsigned char>(ui->spinBoxR->value()),
                     static_cast<unsigned char>(ui->spinBoxG->value()),
                     static_cast<unsigned char>(ui->spinBoxB->value()));
