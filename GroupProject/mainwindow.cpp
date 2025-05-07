@@ -87,6 +87,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::handleButton()
 {
+    QModelIndex idx = ui->treeView->currentIndex();
+    QModelIndex parentIdx = idx.isValid() ? idx : QModelIndex();
+    QList<QVariant> data = { "NewPart", "true" };
+    partList->appendChild(parentIdx, data);
+    updateRender();
     emit statusUpdateMessage(QString("Add button was clicked"), 0);
 }
 
@@ -104,21 +109,42 @@ void MainWindow::on_actionOpen_File_triggered()
         this,
         tr("Open File"),
         "C:\\",
-        tr("STL Files (*.stl);;Text Files (*.txt)")
+        tr("STL Files (*.stl)")
     );
 
-    if (!fileName.isEmpty()) {
-        QString justName = fileName.section('/', -1);
-        emit statusUpdateMessage("Open File selected: " + justName, 0);
-    }
+    QString justName = QFileInfo(fileName).fileName();
+    emit statusUpdateMessage("Open File selected: " + justName, 0);
+
+    QModelIndex index = ui->treeView->currentIndex();
+
+    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+    selectedPart->set(0, QVariant(justName));
+    selectedPart->loadSTL(fileName);
+
+    renderer->AddActor(selectedPart->getActor());
+    renderer->ResetCamera();
+    renderWindow->Render();
+
+    updateRender();
 }
 
 
 void MainWindow::on_pushButton_2_clicked()
 {
+    QModelIndex index = ui->treeView->currentIndex();
+    if (!index.isValid()) {
+        emit statusUpdateMessage("No item selected", 0);
+        return;
+    }
+
+    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+
     OptionDialog dialog(this);
+    dialog.setDialog(selectedPart);
 
     if (dialog.exec() == QDialog::Accepted) {
+        dialog.setModelPart(selectedPart);
+        updateRender();
         emit statusUpdateMessage("Dialog accepted", 0);
     } else {
         emit statusUpdateMessage("Dialog rejected", 0);
@@ -128,12 +154,45 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::on_actionItem_Options_triggered()
 {
+    QModelIndex index = ui->treeView->currentIndex();
+    if (!index.isValid()) {
+        emit statusUpdateMessage("No item selected", 0);
+        return;
+    }
+
+    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+
     OptionDialog dialog(this);
+    dialog.setDialog(selectedPart);
 
     if (dialog.exec() == QDialog::Accepted) {
+        dialog.setModelPart(selectedPart);
+        updateRender();
         emit statusUpdateMessage("Dialog accepted", 0);
     } else {
         emit statusUpdateMessage("Dialog rejected", 0);
     }
 }
 
+void MainWindow::updateRender()
+{
+    renderer->RemoveAllViewProps();
+    updateRenderFromTree(QModelIndex());
+    renderer->Render();
+}
+
+void MainWindow::updateRenderFromTree(const QModelIndex &index)
+{
+    int n = partList->rowCount(index);
+    for (int row = 0; row < n; ++row) {
+
+        QModelIndex child = partList->index(row, 0, index);
+        auto part = static_cast<ModelPart*>(child.internalPointer());
+
+        if (part->getActor()) {
+            renderer->AddActor(part->getActor());
+        }
+
+        updateRenderFromTree(child);
+    }
+}

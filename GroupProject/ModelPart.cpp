@@ -15,12 +15,14 @@
  */
 #include <vtkSmartPointer.h>
 #include <vtkDataSetMapper.h>
+#include <vtkProperty.h>
+#include <vtkPolyDataMapper.h>
 
 
 
 ModelPart::ModelPart(const QList<QVariant>& data, ModelPart* parent )
-    : m_itemData(data), m_parentItem(parent) {
-
+    : m_itemData(data), m_parentItem(parent), isVisible(true), actor(nullptr), mapper(nullptr)  {
+    colour.Set(255,255,255);
     /* You probably want to give the item a default colour */
 }
 
@@ -97,22 +99,29 @@ int ModelPart::row() const {
 
 void ModelPart::setColour(const unsigned char R, const unsigned char G, const unsigned char B) {
     /* This is a placeholder function that you will need to modify if you want to use it */
-    
+    colour.Set(R, G, B);
     /* As the name suggests ... */
+    if (actor) {
+        actor->GetProperty()->SetColor(
+            R / 255.0,
+            G / 255.0,
+            B / 255.0
+            );
+    }
 }
 
 unsigned char ModelPart::getColourR() {
     /* This is a placeholder function that you will need to modify if you want to use it */
     
     /* As the name suggests ... */
-    return 0;   // needs updating
+    return colour.GetRed();
 }
 
 unsigned char ModelPart::getColourG() {
     /* This is a placeholder function that you will need to modify if you want to use it */
     
     /* As the name suggests ... */
-    return 0;   // needs updating
+    return colour.GetGreen();
 }
 
 
@@ -120,42 +129,60 @@ unsigned char ModelPart::getColourB() {
    /* This is a placeholder function that you will need to modify if you want to use it */
     
     /* As the name suggests ... */
-    return 0;   // needs updating
+    return colour.GetBlue();
 }
 
 
-void ModelPart::setVisible(bool isVisible) {
+void ModelPart::setVisible(bool visible) {
     /* This is a placeholder function that you will need to modify if you want to use it */
-    
+    isVisible=visible;
     /* As the name suggests ... */
+    if (actor) {
+        actor->SetVisibility(visible);
+    }
 }
 
 bool ModelPart::visible() {
     /* This is a placeholder function that you will need to modify if you want to use it */
     
     /* As the name suggests ... */
-    return false;
+    return isVisible;
 }
 
 void ModelPart::loadSTL( QString fileName ) {
     /* This is a placeholder function that you will need to modify if you want to use it */
-    
-    /* 1. Use the vtkSTLReader class to load the STL file 
+
+    /* 1. Use the vtkSTLReader class to load the STL file
      *     https://vtk.org/doc/nightly/html/classvtkSTLReader.html
      */
+    file = vtkSmartPointer<vtkSTLReader>::New();
+    file->SetFileName(fileName.toStdString().c_str());
+    file->Update();
 
     /* 2. Initialise the part's vtkMapper */
-    
+    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(file->GetOutputPort());
+
+
     /* 3. Initialise the part's vtkActor and link to the mapper */
+
+    actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetColor(
+        colour.GetRed()   / 255.0,
+        colour.GetGreen() / 255.0,
+        colour.GetBlue()  / 255.0
+        );
+    actor->SetVisibility(isVisible);
 }
 
-//vtkSmartPointer<vtkActor> ModelPart::getActor() {
+vtkSmartPointer<vtkActor> ModelPart::getActor() {
     /* This is a placeholder function that you will need to modify if you want to use it */
-    
+    return actor;
     /* Needs to return a smart pointer to the vtkActor to allow
      * part to be rendered.
      */
-//}
+}
 
 vtkActor* ModelPart::getNewActor() {
     /* This is a placeholder function that you will need to modify if you want to use it
@@ -167,8 +194,12 @@ vtkActor* ModelPart::getNewActor() {
      
      
      /* 1. Create new mapper */
+    auto newMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    newMapper->SetInputConnection(file->GetOutputPort());
      
      /* 2. Create new actor and link to mapper */
+    auto newActor = vtkSmartPointer<vtkActor>::New();
+    newActor->SetMapper(newMapper);
      
      /* 3. Link the vtkProperties of the original actor to the new actor. This means 
       *    if you change properties of the original part (colour, position, etc), the
@@ -177,10 +208,12 @@ vtkActor* ModelPart::getNewActor() {
       *    See the vtkActor documentation, particularly the GetProperty() and SetProperty()
       *    functions.
       */
+    newActor->SetProperty(actor->GetProperty());
+    newActor->SetVisibility(isVisible);
     
 
     /* The new vtkActor pointer must be returned here */
-    return nullptr;
+    return newActor;
     
 }
 

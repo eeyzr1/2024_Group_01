@@ -29,7 +29,7 @@
     <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>120</x>
@@ -63,7 +63,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBoxR"/>
+       <widget class="QSpinBox" name="spinBoxR">
+        <property name="maximum">
+         <number>255</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -77,7 +81,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBoxG"/>
+       <widget class="QSpinBox" name="spinBoxG">
+        <property name="maximum">
+         <number>255</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -91,7 +99,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBoxB"/>
+       <widget class="QSpinBox" name="spinBoxB">
+        <property name="maximum">
+         <number>255</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
