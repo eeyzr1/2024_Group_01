@@ -29,13 +29,13 @@
     <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>60</y>
-     <width>166</width>
-     <height>157</height>
+     <x>100</x>
+     <y>20</y>
+     <width>199</width>
+     <height>217</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -118,6 +118,42 @@
       </item>
       <item>
        <widget class="QCheckBox" name="isVisible">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Clip Filter :</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxClipFilter">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Shrink Filter :</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_2">
         <property name="text">
          <string>CheckBox</string>
         </property>

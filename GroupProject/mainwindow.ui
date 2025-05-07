@@ -99,6 +99,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_File"/>
+    <addaction name="actionOpen_Folder"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -114,11 +115,12 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen_File"/>
+   <addaction name="actionOpen_Folder"/>
   </widget>
   <action name="actionOpen_File">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/Icons/icons/fileopen.png</normaloff>:/Icons/icons/fileopen.png</iconset>
+     <normaloff>:/Icons/icons/print.png</normaloff>:/Icons/icons/print.png</iconset>
    </property>
    <property name="text">
     <string>Open File</string>
@@ -134,6 +136,18 @@
    </property>
    <property name="text">
     <string>Item Options</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionOpen_Folder">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Icons/icons/fileopen.png</normaloff>:/Icons/icons/fileopen.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open Folder</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

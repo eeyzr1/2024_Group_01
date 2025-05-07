@@ -105,27 +105,36 @@ void MainWindow::handleTreeClicked()
 
 void MainWindow::on_actionOpen_File_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(
+    QStringList fileNames = QFileDialog::getOpenFileNames(
         this,
-        tr("Open File"),
-        "C:\\",
+        tr("Open STL Files"),
+        QString(),
         tr("STL Files (*.stl)")
-    );
+        );
+    if (fileNames.isEmpty())
+        return;
 
-    QString justName = QFileInfo(fileName).fileName();
-    emit statusUpdateMessage("Open File selected: " + justName, 0);
+    QModelIndex parentIdx = ui->treeView->currentIndex();
 
-    QModelIndex index = ui->treeView->currentIndex();
+    for (const QString &filePath : fileNames) {
+        QString justName = QFileInfo(filePath).fileName();
 
-    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
-    selectedPart->set(0, QVariant(justName));
-    selectedPart->loadSTL(fileName);
+        QList<QVariant> data = { justName, true };
+        partList->appendChild(parentIdx, data);
 
-    renderer->AddActor(selectedPart->getActor());
+        int newRow = partList->rowCount(parentIdx) - 1;
+        QModelIndex newIdx = partList->index(newRow, 0, parentIdx);
+        auto newPart = static_cast<ModelPart*>(newIdx.internalPointer());
+        newPart->loadSTL(filePath);
+        renderer->AddActor(newPart->getActor());
+    }
+
     renderer->ResetCamera();
     renderWindow->Render();
 
     updateRender();
+    emit statusUpdateMessage(
+        tr("Loaded %1 files").arg(fileNames.size()), 3000);
 }
 
 
@@ -196,3 +205,46 @@ void MainWindow::updateRenderFromTree(const QModelIndex &index)
         updateRenderFromTree(child);
     }
 }
+
+void MainWindow::on_actionOpen_Folder_triggered()
+{
+    QString dir = QFileDialog::getExistingDirectory(
+        this,
+        tr("Open Folder of STL Models"),
+        QString(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+        );
+    if (dir.isEmpty())
+        return;
+
+    QModelIndex parentIdx = ui->treeView->currentIndex();
+    if (!parentIdx.isValid())
+        parentIdx = QModelIndex();
+
+    QDir d(dir);
+    QStringList files = d.entryList({ "*.stl" }, QDir::Files);
+    for (const QString &file : files) {
+        QString fullPath = d.filePath(file);
+
+        QList<QVariant> data = { file, true };
+        partList->appendChild(parentIdx, data);
+
+        int newRow = partList->rowCount(parentIdx) - 1;
+        QModelIndex newIdx = partList->index(newRow, 0, parentIdx);
+        auto newPart = static_cast<ModelPart*>(newIdx.internalPointer());
+        newPart->loadSTL(fullPath);
+        renderer->AddActor(newPart->getActor());
+    }
+
+    renderer->ResetCamera();
+    renderWindow->Render();
+    updateRender();
+
+    emit statusUpdateMessage(
+        tr("Loaded %1 files from \"%2\"")
+            .arg(files.size())
+            .arg(QFileInfo(dir).fileName()),
+        3000
+        );
+}
+

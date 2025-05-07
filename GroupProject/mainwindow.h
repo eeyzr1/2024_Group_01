@@ -32,6 +32,7 @@ private slots:
     void on_actionOpen_File_triggered();
     void on_pushButton_2_clicked();
     void on_actionItem_Options_triggered();
+    void on_actionOpen_Folder_triggered();
 
 private:
     Ui::MainWindow *ui;
