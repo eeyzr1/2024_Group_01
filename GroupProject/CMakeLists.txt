@@ -11,18 +11,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(VTK REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        ModelPart.cpp
+        ModelPart.h
+        ModelPartList.cpp
+        ModelPartList.h
+        icons.qrc
+        optiondialog.h
+        optiondialog.cpp
+        optiondialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(GroupProject
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        icons.qrc
+        optiondialog.h optiondialog.cpp optiondialog.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET GroupProject APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -42,7 +53,10 @@ else()
     endif()
 endif()
 
-target_link_libraries(GroupProject PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(GroupProject PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${VTK_LIBRARIES})
+
+vtk_module_autoinit( TARGETS GroupProject MODULES ${VTK_LIBRARIES} )
+
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -68,3 +82,9 @@ install(TARGETS GroupProject
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(GroupProject)
 endif()
+
+add_custom_target(	VRBindings )
+add_custom_command(	TARGET VRBindings PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E
+              copy_directory ${CMAKE_SOURCE_DIR}/vrbindings ${CMAKE_BINARY_DIR}/ )
+
