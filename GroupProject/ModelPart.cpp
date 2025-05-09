@@ -17,11 +17,16 @@
 #include <vtkDataSetMapper.h>
 #include <vtkProperty.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkPlane.h>
+#include <vtkClipDataSet.h>
+#include <vtkShrinkFilter.h>
 
 
 
 ModelPart::ModelPart(const QList<QVariant>& data, ModelPart* parent )
-    : m_itemData(data), m_parentItem(parent), isVisible(true), actor(nullptr), mapper(nullptr)  {
+    : m_itemData(data), m_parentItem(parent), isVisible(true),
+    clipFilter(false), shrinkFilter(false),
+    actor(nullptr), mapper(nullptr)  {
     colour.Set(255,255,255);
     /* You probably want to give the item a default colour */
 }
@@ -215,5 +220,45 @@ vtkActor* ModelPart::getNewActor() {
     /* The new vtkActor pointer must be returned here */
     return newActor;
     
+}
+
+void ModelPart::applyClipFilter()
+{
+    vtkSmartPointer<vtkPlane> planeLeft = vtkSmartPointer<vtkPlane>::New();
+    planeLeft->SetOrigin(0.0, 0.0, 0.0);
+    planeLeft->SetNormal(-1.0, 0.0, 0.0);
+
+    vtkSmartPointer<vtkClipDataSet> clip = vtkSmartPointer<vtkClipDataSet>::New();
+    clip->SetInputConnection(file->GetOutputPort());
+    clip->SetClipFunction(planeLeft.Get());
+
+    mapper->SetInputConnection(clip->GetOutputPort());
+
+}
+
+void ModelPart::applyShrinkFilter()
+{
+    vtkSmartPointer<vtkShrinkFilter> shrink = vtkSmartPointer<vtkShrinkFilter>::New();
+    shrink->SetInputConnection(file->GetOutputPort());
+    shrink->SetShrinkFactor(0.8);
+    shrink->Update();
+
+    mapper->SetInputConnection(shrink->GetOutputPort());
+}
+
+bool ModelPart::clip() {
+    return clipFilter;
+}
+
+bool ModelPart::shrink() {
+    return shrinkFilter;
+}
+
+void ModelPart::setClip(bool clip) {
+    clipFilter = clip;
+}
+
+void ModelPart::setShrink(bool shrink) {
+    shrinkFilter = shrink;
 }
 

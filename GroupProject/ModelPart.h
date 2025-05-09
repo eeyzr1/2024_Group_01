@@ -126,6 +126,20 @@ public:
       */
     vtkActor* getNewActor();
 
+
+    void applyClipFilter();
+
+    void applyShrinkFilter();
+
+    bool clip();
+
+    bool shrink();
+
+    void setClip(bool clip);
+
+    void setShrink(bool shrink);
+
+
 private:
     QList<ModelPart*>                           m_childItems;       /**< List (array) of child items */
     QList<QVariant>                             m_itemData;         /**< List (array of column data for item */
@@ -135,7 +149,9 @@ private:
      * want to add you own.
      */
     bool                                        isVisible;          /**< True/false to indicate if should be visible in model rendering */
-	
+    bool                                        clipFilter;
+    bool                                        shrinkFilter;
+
 	/* These are vtk properties that will be used to load/render a model of this part,
 	 * commented out for now but will be used later
 	 */

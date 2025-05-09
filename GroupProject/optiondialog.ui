@@ -153,7 +153,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_2">
+       <widget class="QCheckBox" name="checkBoxShrinkFilter">
         <property name="text">
          <string>CheckBox</string>
         </property>
