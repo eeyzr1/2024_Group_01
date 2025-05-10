@@ -38,4 +38,5 @@ void OptionDialog::setModelPart(ModelPart* part)
                     static_cast<unsigned char>(ui->spinBoxB->value()));
     part->setClip(ui->checkBoxClipFilter->isChecked());
     part->setShrink(ui->checkBoxShrinkFilter->isChecked());
+    part->setFilter();
 }

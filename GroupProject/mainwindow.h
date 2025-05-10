@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "ModelPartList.h"
 #include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkLight.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

@@ -16,7 +16,6 @@
 #include <vtkSmartPointer.h>
 #include <vtkDataSetMapper.h>
 #include <vtkProperty.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkPlane.h>
 #include <vtkClipDataSet.h>
 #include <vtkShrinkFilter.h>
@@ -106,13 +105,6 @@ void ModelPart::setColour(const unsigned char R, const unsigned char G, const un
     /* This is a placeholder function that you will need to modify if you want to use it */
     colour.Set(R, G, B);
     /* As the name suggests ... */
-    if (actor) {
-        actor->GetProperty()->SetColor(
-            R / 255.0,
-            G / 255.0,
-            B / 255.0
-            );
-    }
 }
 
 unsigned char ModelPart::getColourR() {
@@ -142,9 +134,6 @@ void ModelPart::setVisible(bool visible) {
     /* This is a placeholder function that you will need to modify if you want to use it */
     isVisible=visible;
     /* As the name suggests ... */
-    if (actor) {
-        actor->SetVisibility(visible);
-    }
 }
 
 bool ModelPart::visible() {
@@ -165,7 +154,7 @@ void ModelPart::loadSTL( QString fileName ) {
     file->Update();
 
     /* 2. Initialise the part's vtkMapper */
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper = vtkSmartPointer<vtkDataSetMapper>::New();
     mapper->SetInputConnection(file->GetOutputPort());
 
 
@@ -199,7 +188,7 @@ vtkActor* ModelPart::getNewActor() {
      
      
      /* 1. Create new mapper */
-    auto newMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    auto newMapper = vtkSmartPointer<vtkDataSetMapper>::New();
     newMapper->SetInputConnection(file->GetOutputPort());
      
      /* 2. Create new actor and link to mapper */
@@ -222,28 +211,59 @@ vtkActor* ModelPart::getNewActor() {
     
 }
 
-void ModelPart::applyClipFilter()
+void ModelPart::setFilter()
 {
-    vtkSmartPointer<vtkPlane> planeLeft = vtkSmartPointer<vtkPlane>::New();
-    planeLeft->SetOrigin(0.0, 0.0, 0.0);
-    planeLeft->SetNormal(-1.0, 0.0, 0.0);
+    if (clipFilter && shrinkFilter) {
 
-    vtkSmartPointer<vtkClipDataSet> clip = vtkSmartPointer<vtkClipDataSet>::New();
-    clip->SetInputConnection(file->GetOutputPort());
-    clip->SetClipFunction(planeLeft.Get());
+        vtkSmartPointer<vtkPlane> planeLeft =
+            vtkSmartPointer<vtkPlane>::New();
+        planeLeft->SetOrigin(0.0, 0.0, 0.0);
+        planeLeft->SetNormal(0, 1, 0.0);
 
-    mapper->SetInputConnection(clip->GetOutputPort());
+        vtkSmartPointer<vtkClipDataSet> clip = vtkSmartPointer<vtkClipDataSet>::New();
+        clip->SetInputConnection(file->GetOutputPort());
+        clip->SetClipFunction(planeLeft.Get());
 
-}
+        vtkSmartPointer<vtkShrinkFilter> shrink = vtkSmartPointer<vtkShrinkFilter>::New();
+        shrink->SetInputConnection(clip->GetOutputPort());
+        shrink->SetShrinkFactor(0.8);
+        shrink->Update();
 
-void ModelPart::applyShrinkFilter()
-{
-    vtkSmartPointer<vtkShrinkFilter> shrink = vtkSmartPointer<vtkShrinkFilter>::New();
-    shrink->SetInputConnection(file->GetOutputPort());
-    shrink->SetShrinkFactor(0.8);
-    shrink->Update();
+        mapper->SetInputConnection(shrink->GetOutputPort());
+    }
 
-    mapper->SetInputConnection(shrink->GetOutputPort());
+    else if (clipFilter) {
+        vtkSmartPointer<vtkPlane> planeLeft = vtkSmartPointer<vtkPlane>::New();
+        planeLeft->SetOrigin(0.0, 0.0, 0.0);
+        planeLeft->SetNormal(0.0, 1, 0.0);
+
+        vtkSmartPointer<vtkClipDataSet> clip = vtkSmartPointer<vtkClipDataSet>::New();
+        clip->SetInputConnection(file->GetOutputPort());
+        clip->SetClipFunction(planeLeft.Get());
+
+        mapper->SetInputConnection(clip->GetOutputPort());
+    }
+
+    else if (shrinkFilter) {
+        vtkSmartPointer<vtkShrinkFilter> shrink = vtkSmartPointer<vtkShrinkFilter>::New();
+        shrink->SetInputConnection(file->GetOutputPort());
+        shrink->SetShrinkFactor(0.8);
+        shrink->Update();
+
+        mapper->SetInputConnection(shrink->GetOutputPort());
+    }
+
+    else {
+        mapper->SetInputConnection(file->GetOutputPort());
+    }
+
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetColor(
+        colour.GetRed()   / 255.0,
+        colour.GetGreen() / 255.0,
+        colour.GetBlue()  / 255.0
+        );
+    actor->SetVisibility(isVisible);
 }
 
 bool ModelPart::clip() {

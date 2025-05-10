@@ -10,6 +10,7 @@
 #include <vtkProperty.h>
 #include <vtkCamera.h>
 #include "optiondialog.h"
+#include <vtkLight.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -78,6 +79,37 @@ MainWindow::MainWindow(QWidget *parent)
     renderer->GetActiveCamera()->Azimuth(30);
     renderer->GetActiveCamera()->Elevation(30);
     renderer->ResetCameraClippingRange();
+
+    renderer->SetAmbient(0.4, 0.4, 0.4);
+
+    vtkSmartPointer<vtkLight> keyLight = vtkSmartPointer<vtkLight>::New();
+    keyLight->SetLightTypeToSceneLight();
+    keyLight->SetPosition(200.0, 200.0, 400.0);
+    keyLight->SetFocalPoint(0.0, 0.0, 0.0);
+    keyLight->SetPositional(true);
+    keyLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    keyLight->SetSpecularColor(1.0, 1.0, 1.0);
+    keyLight->SetConeAngle(30.0);
+    keyLight->SetIntensity(0.8);
+    renderer->AddLight(keyLight);
+
+    vtkSmartPointer<vtkLight> fillLight = vtkSmartPointer<vtkLight>::New();
+    fillLight->SetLightTypeToSceneLight();
+    fillLight->SetPosition(-200.0, -100.0, 100.0);
+    fillLight->SetFocalPoint(0.0, 0.0, 0.0);
+    fillLight->SetPositional(true);
+    fillLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    fillLight->SetIntensity(0.6);
+    renderer->AddLight(fillLight);
+
+    vtkSmartPointer<vtkLight> backLight = vtkSmartPointer<vtkLight>::New();
+    backLight->SetLightTypeToSceneLight();
+    backLight->SetPosition(0.0, -200.0, 200.0);
+    backLight->SetFocalPoint(0.0, 0.0, 0.0);
+    backLight->SetPositional(true);
+    backLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    backLight->SetIntensity(0.4);
+    renderer->AddLight(backLight);
 }
 
 MainWindow::~MainWindow()
@@ -188,6 +220,37 @@ void MainWindow::updateRender()
     renderer->RemoveAllViewProps();
     updateRenderFromTree(QModelIndex());
     renderer->Render();
+
+    renderer->SetAmbient(0.4, 0.4, 0.4);
+
+    vtkSmartPointer<vtkLight> keyLight = vtkSmartPointer<vtkLight>::New();
+    keyLight->SetLightTypeToSceneLight();
+    keyLight->SetPosition(200.0, 200.0, 400.0);
+    keyLight->SetFocalPoint(0.0, 0.0, 0.0);
+    keyLight->SetPositional(true);
+    keyLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    keyLight->SetSpecularColor(1.0, 1.0, 1.0);
+    keyLight->SetConeAngle(30.0);
+    keyLight->SetIntensity(0.8);
+    renderer->AddLight(keyLight);
+
+    vtkSmartPointer<vtkLight> fillLight = vtkSmartPointer<vtkLight>::New();
+    fillLight->SetLightTypeToSceneLight();
+    fillLight->SetPosition(-200.0, -100.0, 100.0);
+    fillLight->SetFocalPoint(0.0, 0.0, 0.0);
+    fillLight->SetPositional(true);
+    fillLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    fillLight->SetIntensity(0.6);
+    renderer->AddLight(fillLight);
+
+    vtkSmartPointer<vtkLight> backLight = vtkSmartPointer<vtkLight>::New();
+    backLight->SetLightTypeToSceneLight();
+    backLight->SetPosition(0.0, -200.0, 200.0);
+    backLight->SetFocalPoint(0.0, 0.0, 0.0);
+    backLight->SetPositional(true);
+    backLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    backLight->SetIntensity(0.4);
+    renderer->AddLight(backLight);
 }
 
 void MainWindow::updateRenderFromTree(const QModelIndex &index)

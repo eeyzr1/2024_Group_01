@@ -127,9 +127,7 @@ public:
     vtkActor* getNewActor();
 
 
-    void applyClipFilter();
-
-    void applyShrinkFilter();
+    void setFilter();
 
     bool clip();
 
