@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "ModelPartList.h"
 #include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkLight.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,16 +24,17 @@ public:
     ~MainWindow();
 
 public slots:
-    void handleButton();
+    void handleButtonAdd();
     void handleTreeClicked();
     void updateRender();
     void updateRenderFromTree(const QModelIndex &index);
 
 private slots:
     void on_actionOpen_File_triggered();
-    void on_pushButton_2_clicked();
+    void on_pushButtonOptions_clicked();
     void on_actionItem_Options_triggered();
     void on_actionOpen_Folder_triggered();
+    void on_pushButtonDelete_clicked();
 
 private:
     Ui::MainWindow *ui;

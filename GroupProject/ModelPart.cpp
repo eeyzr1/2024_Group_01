@@ -16,13 +16,17 @@
 #include <vtkSmartPointer.h>
 #include <vtkDataSetMapper.h>
 #include <vtkProperty.h>
-#include <vtkPolyDataMapper.h>
+#include <vtkPlane.h>
+#include <vtkClipDataSet.h>
+#include <vtkShrinkFilter.h>
 
 
 
 ModelPart::ModelPart(const QList<QVariant>& data, ModelPart* parent )
-    : m_itemData(data), m_parentItem(parent), isVisible(true), actor(nullptr), mapper(nullptr)  {
-    colour.Set(255,255,255);
+    : m_itemData(data), m_parentItem(parent), isVisible(true),
+    clipFilter(false), shrinkFilter(false),
+    actor(nullptr), mapper(nullptr)  {
+    colour.Set(100,100,100);
     /* You probably want to give the item a default colour */
 }
 
@@ -101,13 +105,6 @@ void ModelPart::setColour(const unsigned char R, const unsigned char G, const un
     /* This is a placeholder function that you will need to modify if you want to use it */
     colour.Set(R, G, B);
     /* As the name suggests ... */
-    if (actor) {
-        actor->GetProperty()->SetColor(
-            R / 255.0,
-            G / 255.0,
-            B / 255.0
-            );
-    }
 }
 
 unsigned char ModelPart::getColourR() {
@@ -137,9 +134,6 @@ void ModelPart::setVisible(bool visible) {
     /* This is a placeholder function that you will need to modify if you want to use it */
     isVisible=visible;
     /* As the name suggests ... */
-    if (actor) {
-        actor->SetVisibility(visible);
-    }
 }
 
 bool ModelPart::visible() {
@@ -160,7 +154,7 @@ void ModelPart::loadSTL( QString fileName ) {
     file->Update();
 
     /* 2. Initialise the part's vtkMapper */
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper = vtkSmartPointer<vtkDataSetMapper>::New();
     mapper->SetInputConnection(file->GetOutputPort());
 
 
@@ -194,7 +188,7 @@ vtkActor* ModelPart::getNewActor() {
      
      
      /* 1. Create new mapper */
-    auto newMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    auto newMapper = vtkSmartPointer<vtkDataSetMapper>::New();
     newMapper->SetInputConnection(file->GetOutputPort());
      
      /* 2. Create new actor and link to mapper */
@@ -215,5 +209,76 @@ vtkActor* ModelPart::getNewActor() {
     /* The new vtkActor pointer must be returned here */
     return newActor;
     
+}
+
+void ModelPart::setFilter()
+{
+    if (clipFilter && shrinkFilter) {
+
+        vtkSmartPointer<vtkPlane> planeLeft =
+            vtkSmartPointer<vtkPlane>::New();
+        planeLeft->SetOrigin(0.0, 0.0, 0.0);
+        planeLeft->SetNormal(0, 1, 0.0);
+
+        vtkSmartPointer<vtkClipDataSet> clip = vtkSmartPointer<vtkClipDataSet>::New();
+        clip->SetInputConnection(file->GetOutputPort());
+        clip->SetClipFunction(planeLeft.Get());
+
+        vtkSmartPointer<vtkShrinkFilter> shrink = vtkSmartPointer<vtkShrinkFilter>::New();
+        shrink->SetInputConnection(clip->GetOutputPort());
+        shrink->SetShrinkFactor(0.8);
+        shrink->Update();
+
+        mapper->SetInputConnection(shrink->GetOutputPort());
+    }
+
+    else if (clipFilter) {
+        vtkSmartPointer<vtkPlane> planeLeft = vtkSmartPointer<vtkPlane>::New();
+        planeLeft->SetOrigin(0.0, 0.0, 0.0);
+        planeLeft->SetNormal(0.0, 1, 0.0);
+
+        vtkSmartPointer<vtkClipDataSet> clip = vtkSmartPointer<vtkClipDataSet>::New();
+        clip->SetInputConnection(file->GetOutputPort());
+        clip->SetClipFunction(planeLeft.Get());
+
+        mapper->SetInputConnection(clip->GetOutputPort());
+    }
+
+    else if (shrinkFilter) {
+        vtkSmartPointer<vtkShrinkFilter> shrink = vtkSmartPointer<vtkShrinkFilter>::New();
+        shrink->SetInputConnection(file->GetOutputPort());
+        shrink->SetShrinkFactor(0.8);
+        shrink->Update();
+
+        mapper->SetInputConnection(shrink->GetOutputPort());
+    }
+
+    else {
+        mapper->SetInputConnection(file->GetOutputPort());
+    }
+
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetColor(
+        colour.GetRed()   / 255.0,
+        colour.GetGreen() / 255.0,
+        colour.GetBlue()  / 255.0
+        );
+    actor->SetVisibility(isVisible);
+}
+
+bool ModelPart::clip() {
+    return clipFilter;
+}
+
+bool ModelPart::shrink() {
+    return shrinkFilter;
+}
+
+void ModelPart::setClip(bool clip) {
+    clipFilter = clip;
+}
+
+void ModelPart::setShrink(bool shrink) {
+    shrinkFilter = shrink;
 }
 

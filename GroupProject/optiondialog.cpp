@@ -22,6 +22,8 @@ void OptionDialog::setDialog(ModelPart* part)
     ui->spinBoxR->setValue(static_cast<int>(part->getColourR()));
     ui->spinBoxG->setValue(static_cast<int>(part->getColourG()));
     ui->spinBoxB->setValue(static_cast<int>(part->getColourB()));
+    ui->checkBoxClipFilter->setChecked(part->clip());
+    ui->checkBoxShrinkFilter->setChecked(part->shrink());
 }
 
 void OptionDialog::setModelPart(ModelPart* part)
@@ -34,4 +36,7 @@ void OptionDialog::setModelPart(ModelPart* part)
     part->setColour(static_cast<unsigned char>(ui->spinBoxR->value()),
                     static_cast<unsigned char>(ui->spinBoxG->value()),
                     static_cast<unsigned char>(ui->spinBoxB->value()));
+    part->setClip(ui->checkBoxClipFilter->isChecked());
+    part->setShrink(ui->checkBoxShrinkFilter->isChecked());
+    part->setFilter();
 }
