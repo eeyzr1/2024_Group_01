@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    connect(ui->pushButton, &QPushButton::released, this, &MainWindow::handleButton);
+    connect(ui->pushButtonAdd, &QPushButton::released, this, &MainWindow::handleButtonAdd);
     connect(this, &MainWindow::statusUpdateMessage, ui->statusbar, &QStatusBar::showMessage);
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::handleTreeClicked);
 
@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
     renderer->GetActiveCamera()->Elevation(30);
     renderer->ResetCameraClippingRange();
 
-    renderer->SetAmbient(0.4, 0.4, 0.4);
+    renderer->SetAmbient(0.3, 0.3, 0.3);
 
     vtkSmartPointer<vtkLight> keyLight = vtkSmartPointer<vtkLight>::New();
     keyLight->SetLightTypeToSceneLight();
@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent)
     keyLight->SetDiffuseColor(1.0, 1.0, 1.0);
     keyLight->SetSpecularColor(1.0, 1.0, 1.0);
     keyLight->SetConeAngle(30.0);
-    keyLight->SetIntensity(0.8);
+    keyLight->SetIntensity(0.7);
     renderer->AddLight(keyLight);
 
     vtkSmartPointer<vtkLight> fillLight = vtkSmartPointer<vtkLight>::New();
@@ -99,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
     fillLight->SetFocalPoint(0.0, 0.0, 0.0);
     fillLight->SetPositional(true);
     fillLight->SetDiffuseColor(1.0, 1.0, 1.0);
-    fillLight->SetIntensity(0.6);
+    fillLight->SetIntensity(0.5);
     renderer->AddLight(fillLight);
 
     vtkSmartPointer<vtkLight> backLight = vtkSmartPointer<vtkLight>::New();
@@ -108,7 +108,7 @@ MainWindow::MainWindow(QWidget *parent)
     backLight->SetFocalPoint(0.0, 0.0, 0.0);
     backLight->SetPositional(true);
     backLight->SetDiffuseColor(1.0, 1.0, 1.0);
-    backLight->SetIntensity(0.4);
+    backLight->SetIntensity(0.3);
     renderer->AddLight(backLight);
 }
 
@@ -117,9 +117,13 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::handleButton()
+void MainWindow::handleButtonAdd()
 {
     QModelIndex idx = ui->treeView->currentIndex();
+    if (!idx.isValid()) {
+        emit statusUpdateMessage("No item selected", 0);
+        return;
+    }
     QModelIndex parentIdx = idx.isValid() ? idx : QModelIndex();
     QList<QVariant> data = { "NewPart", "true" };
     partList->appendChild(parentIdx, data);
@@ -170,7 +174,7 @@ void MainWindow::on_actionOpen_File_triggered()
 }
 
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_pushButtonOptions_clicked()
 {
     QModelIndex index = ui->treeView->currentIndex();
     if (!index.isValid()) {
@@ -309,5 +313,21 @@ void MainWindow::on_actionOpen_Folder_triggered()
             .arg(QFileInfo(dir).fileName()),
         3000
         );
+}
+
+
+void MainWindow::on_pushButtonDelete_clicked()
+{
+    QModelIndex index = ui->treeView->currentIndex();
+    if (!index.isValid()) {
+        emit statusUpdateMessage("No item selected", 0);
+        return;
+    }
+
+    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+
+    delete selectedPart;
+
+    emit statusUpdateMessage("deleted", 0);
 }
 
