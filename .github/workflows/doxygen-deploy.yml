@@ -3,7 +3,7 @@ name: Deploy Doxygen documentation to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # 默认触发分支
 
 jobs:
   generate-docs:
@@ -13,12 +13,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Install Doxygen
+      run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+
     - name: Run Doxygen
-      working-directory: ./GroupProject/webfile   # for our group dic
+      working-directory: ./webfile
       run: doxygen Doxyfile
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         branch: gh-pages
-        folder: GroupProject/webfile/html          # html output
+        folder: webfile/html
