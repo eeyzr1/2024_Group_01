@@ -1,27 +1,26 @@
-name: Deploy Doxygen documentation to GitHub Pages
+name: doxygen-deploy
 
 on:
   push:
-    branches:
-      - main  # 默认触发分支
+    branches: [ main ] \
 
 jobs:
-  generate-docs:
+  deploy-GroupProject:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Install Doxygen
-      run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+      - name: Install doxygen
+        run: sudo apt-get install -y doxygen
 
-    - name: Run Doxygen
-      working-directory: ./webfile
-      run: doxygen Doxyfile
+      - name: Run Doxygen
+        working-directory: ${{ github.workspace }}/GroupProject/webfile
+        run: doxygen Doxyfile
 
-    - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4
-      with:
-        branch: gh-pages
-        folder: webfile/html
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          branch: gh-pages
+          folder: ${{ github.workspace }}/GroupProject/webfile/html
