@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 project(GroupProject VERSION 0.1 LANGUAGES CXX)
 
@@ -26,6 +26,8 @@ set(PROJECT_SOURCES
         optiondialog.h
         optiondialog.cpp
         optiondialog.ui
+        VRRenderThread.h
+        VRRenderThread.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -77,6 +79,17 @@ install(TARGETS GroupProject
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(FILES "C:/OpenVR/bin/win64/openvr_api.dll"
+        DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(FILES "C:/Qt/6.8.2/msvc2022_64/plugins/platforms/qwindows.dll"
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/platforms)
+
+
+install(FILES $<TARGET_RUNTIME_DLLS:GroupProject>
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 include(InstallRequiredSystemLibraries)

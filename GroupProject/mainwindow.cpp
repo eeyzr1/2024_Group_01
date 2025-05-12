@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
     cylinderActor->SetMapper(cylinderMapper);
     cylinderActor->GetProperty()->SetColor(1.0, 0.0, 0.35);
     cylinderActor->RotateX(30.0);
-    cylinderActor->RotateY(45.0);
+    cylinderActor->RotateY(-45.0);
 
 
     renderer->AddActor(cylinderActor);
@@ -80,36 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
     renderer->GetActiveCamera()->Elevation(30);
     renderer->ResetCameraClippingRange();
 
-    renderer->SetAmbient(0.2, 0.2, 0.2);
-
-    vtkSmartPointer<vtkLight> keyLight = vtkSmartPointer<vtkLight>::New();
-    keyLight->SetLightTypeToSceneLight();
-    keyLight->SetPosition(200.0, 200.0, 400.0);
-    keyLight->SetFocalPoint(0.0, 0.0, 0.0);
-    keyLight->SetPositional(true);
-    keyLight->SetDiffuseColor(1.0, 1.0, 1.0);
-    keyLight->SetSpecularColor(1.0, 1.0, 1.0);
-    keyLight->SetConeAngle(30.0);
-    keyLight->SetIntensity(0.6);
-    renderer->AddLight(keyLight);
-
-    vtkSmartPointer<vtkLight> fillLight = vtkSmartPointer<vtkLight>::New();
-    fillLight->SetLightTypeToSceneLight();
-    fillLight->SetPosition(-200.0, -100.0, 100.0);
-    fillLight->SetFocalPoint(0.0, 0.0, 0.0);
-    fillLight->SetPositional(true);
-    fillLight->SetDiffuseColor(1.0, 1.0, 1.0);
-    fillLight->SetIntensity(0.4);
-    renderer->AddLight(fillLight);
-
-    vtkSmartPointer<vtkLight> backLight = vtkSmartPointer<vtkLight>::New();
-    backLight->SetLightTypeToSceneLight();
-    backLight->SetPosition(0.0, -200.0, 200.0);
-    backLight->SetFocalPoint(0.0, 0.0, 0.0);
-    backLight->SetPositional(true);
-    backLight->SetDiffuseColor(1.0, 1.0, 1.0);
-    backLight->SetIntensity(0.2);
-    renderer->AddLight(backLight);
+    updateLight();
 }
 
 MainWindow::~MainWindow()
@@ -119,18 +90,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::handleButtonAdd()
 {
-    QModelIndex idx = ui->treeView->currentIndex();
-    if (!idx.isValid()) {
+    QModelIndex index = ui->treeView->currentIndex();
+    if (!index.isValid()) {
         emit statusUpdateMessage("No item selected", 0);
         return;
     }
-    QModelIndex parentIdx = idx.isValid() ? idx : QModelIndex();
+    QModelIndex parentIndex = index.isValid() ? index : QModelIndex();
     QList<QVariant> data = { "NewPart", "true" };
-    partList->appendChild(parentIdx, data);
+    partList->appendChild(parentIndex, data);
 
     renderer->ResetCamera();
     renderWindow->Render();
     updateRender();
+    updateLight();
+
     emit statusUpdateMessage(QString("Add button was clicked"), 0);
 }
 
@@ -147,7 +120,7 @@ void MainWindow::on_actionOpen_File_triggered()
     QStringList fileNames = QFileDialog::getOpenFileNames(
         this,
         tr("Open STL Files"),
-        QString(),
+        "C:\\",
         tr("STL Files (*.stl)")
         );
     if (fileNames.isEmpty())
@@ -171,6 +144,8 @@ void MainWindow::on_actionOpen_File_triggered()
     renderer->ResetCamera();
     renderWindow->Render();
     updateRender();
+    updateLight();
+
     emit statusUpdateMessage(
         tr("Loaded %1 files").arg(fileNames.size()), 3000);
 }
@@ -194,6 +169,8 @@ void MainWindow::on_pushButtonOptions_clicked()
         renderer->ResetCamera();
         renderWindow->Render();
         updateRender();
+        updateLight();
+
         emit statusUpdateMessage("Dialog accepted", 0);
     } else {
         emit statusUpdateMessage("Dialog rejected", 0);
@@ -219,6 +196,8 @@ void MainWindow::on_actionItem_Options_triggered()
         renderer->ResetCamera();
         renderWindow->Render();
         updateRender();
+        updateLight();
+
         emit statusUpdateMessage("Dialog accepted", 0);
     } else {
         emit statusUpdateMessage("Dialog rejected", 0);
@@ -230,37 +209,6 @@ void MainWindow::updateRender()
     renderer->RemoveAllViewProps();
     updateRenderFromTree(QModelIndex());
     renderer->Render();
-
-    renderer->SetAmbient(0.2, 0.2, 0.2);
-
-    vtkSmartPointer<vtkLight> keyLight = vtkSmartPointer<vtkLight>::New();
-    keyLight->SetLightTypeToSceneLight();
-    keyLight->SetPosition(200.0, 200.0, 400.0);
-    keyLight->SetFocalPoint(0.0, 0.0, 0.0);
-    keyLight->SetPositional(true);
-    keyLight->SetDiffuseColor(1.0, 1.0, 1.0);
-    keyLight->SetSpecularColor(1.0, 1.0, 1.0);
-    keyLight->SetConeAngle(30.0);
-    keyLight->SetIntensity(0.6);
-    renderer->AddLight(keyLight);
-
-    vtkSmartPointer<vtkLight> fillLight = vtkSmartPointer<vtkLight>::New();
-    fillLight->SetLightTypeToSceneLight();
-    fillLight->SetPosition(-200.0, -100.0, 100.0);
-    fillLight->SetFocalPoint(0.0, 0.0, 0.0);
-    fillLight->SetPositional(true);
-    fillLight->SetDiffuseColor(1.0, 1.0, 1.0);
-    fillLight->SetIntensity(0.4);
-    renderer->AddLight(fillLight);
-
-    vtkSmartPointer<vtkLight> backLight = vtkSmartPointer<vtkLight>::New();
-    backLight->SetLightTypeToSceneLight();
-    backLight->SetPosition(0.0, -200.0, 200.0);
-    backLight->SetFocalPoint(0.0, 0.0, 0.0);
-    backLight->SetPositional(true);
-    backLight->SetDiffuseColor(1.0, 1.0, 1.0);
-    backLight->SetIntensity(0.2);
-    renderer->AddLight(backLight);
 }
 
 void MainWindow::updateRenderFromTree(const QModelIndex &index)
@@ -312,6 +260,7 @@ void MainWindow::on_actionOpen_Folder_triggered()
     renderer->ResetCamera();
     renderWindow->Render();
     updateRender();
+    updateLight();
 
     emit statusUpdateMessage(
         tr("Loaded %1 files from \"%2\"")
@@ -330,12 +279,49 @@ void MainWindow::on_pushButtonDelete_clicked()
         return;
     }
 
+    ModelPart* selectedPart = static_cast<ModelPart*>(index.internalPointer());
+    QString partName = selectedPart->data(0).toString();
+
     partList->removeRows(index.row(), 1, index.parent());
 
     renderer->ResetCamera();
     renderWindow->Render();
     updateRender();
+    updateLight();
 
-    emit statusUpdateMessage("Deleted", 0);
+    emit statusUpdateMessage("'" + partName + "' deleted", 0);
 }
 
+void MainWindow::updateLight()
+{
+    renderer->SetAmbient(0.2, 0.2, 0.2);
+
+    vtkSmartPointer<vtkLight> keyLight = vtkSmartPointer<vtkLight>::New();
+    keyLight->SetLightTypeToSceneLight();
+    keyLight->SetPosition(200.0, 200.0, 400.0);
+    keyLight->SetFocalPoint(0.0, 0.0, 0.0);
+    keyLight->SetPositional(true);
+    keyLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    keyLight->SetSpecularColor(1.0, 1.0, 1.0);
+    keyLight->SetConeAngle(30.0);
+    keyLight->SetIntensity(0.6);
+    renderer->AddLight(keyLight);
+
+    vtkSmartPointer<vtkLight> fillLight = vtkSmartPointer<vtkLight>::New();
+    fillLight->SetLightTypeToSceneLight();
+    fillLight->SetPosition(-200.0, -100.0, 100.0);
+    fillLight->SetFocalPoint(0.0, 0.0, 0.0);
+    fillLight->SetPositional(true);
+    fillLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    fillLight->SetIntensity(0.4);
+    renderer->AddLight(fillLight);
+
+    vtkSmartPointer<vtkLight> backLight = vtkSmartPointer<vtkLight>::New();
+    backLight->SetLightTypeToSceneLight();
+    backLight->SetPosition(0.0, -200.0, 200.0);
+    backLight->SetFocalPoint(0.0, 0.0, 0.0);
+    backLight->SetPositional(true);
+    backLight->SetDiffuseColor(1.0, 1.0, 1.0);
+    backLight->SetIntensity(0.2);
+    renderer->AddLight(backLight);
+}
