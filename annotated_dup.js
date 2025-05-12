@@ -1,8 +1,8 @@
 var annotated_dup =
 [
-    [ "MainWindow", "classMainWindow.html", null ],
+    [ "MainWindow", "classMainWindow.html", "classMainWindow" ],
     [ "ModelPart", "classModelPart.html", "classModelPart" ],
     [ "ModelPartList", "classModelPartList.html", "classModelPartList" ],
-    [ "OptionDialog", "classOptionDialog.html", null ],
+    [ "OptionDialog", "classOptionDialog.html", "classOptionDialog" ],
     [ "VRRenderThread", "classVRRenderThread.html", "classVRRenderThread" ]
 ];
