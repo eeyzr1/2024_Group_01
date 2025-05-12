@@ -79,6 +79,21 @@ install(TARGETS GroupProject
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+include(InstallRequiredSystemLibraries)
+
+if(WIN32)
+    set(CPACK_GENERATOR "NSIS")
+else()
+    set(CPACK_GENERATOR "ZIP")
+endif()
+
+set(CPACK_NSIS_MENU_LINKS
+    "${CMAKE_INSTALL_BINDIR}/GroupProject.exe" "GroupProject"
+    "Uninstall.exe" "Uninstall GroupProject"
+)
+
+include(CPack)
+
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(GroupProject)
 endif()
