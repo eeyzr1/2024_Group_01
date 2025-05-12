@@ -28,6 +28,7 @@ public slots:
     void handleTreeClicked();
     void updateRender();
     void updateRenderFromTree(const QModelIndex &index);
+    void updateLight();
 
 private slots:
     void on_actionOpen_File_triggered();

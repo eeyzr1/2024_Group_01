@@ -137,6 +137,7 @@ public:
 
     void setShrink(bool shrink);
 
+    ModelPart* takeChild(int row);
 
 private:
     QList<ModelPart*>                           m_childItems;       /**< List (array) of child items */
