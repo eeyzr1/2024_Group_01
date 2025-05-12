@@ -1,3 +1,12 @@
+/**
+ * @file mainwindow.cpp
+ * @brief Implementation of the MainWindow class for the Qt + VTK application.
+ * @details This file contains the logic for the GUI, including rendering STL models,
+ *          interacting with the model hierarchy, and responding to user actions.
+ * @version 1.0.0
+ * @author Zhixing
+ * @date 2025-05-12
+ */
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QMessageBox>
@@ -12,6 +21,10 @@
 #include "optiondialog.h"
 #include <vtkLight.h>
 
+/**
+ * @brief Constructs the main window and initializes the UI and VTK renderer.
+ * @param parent The parent widget.
+ */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -82,12 +95,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     updateLight();
 }
-
+/**
+ * @brief Destructor for the MainWindow class.
+ */
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-
+/**
+ * @brief Handles the Add button click to insert a new part into the tree view.
+ */
 void MainWindow::handleButtonAdd()
 {
     QModelIndex index = ui->treeView->currentIndex();
@@ -106,7 +123,9 @@ void MainWindow::handleButtonAdd()
 
     emit statusUpdateMessage(QString("Add button was clicked"), 0);
 }
-
+/**
+ * @brief Handles item selection in the tree view and shows the selected item's name in the status bar.
+ */
 void MainWindow::handleTreeClicked()
 {
     QModelIndex index = ui->treeView->currentIndex();
@@ -114,7 +133,9 @@ void MainWindow::handleTreeClicked()
     QString text = selectedPart->data(0).toString();
     emit statusUpdateMessage("The selected item is: " + text, 0);
 }
-
+/**
+ * @brief Opens multiple STL files and loads them into the scene under the selected tree item.
+ */
 void MainWindow::on_actionOpen_File_triggered()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(
@@ -150,7 +171,9 @@ void MainWindow::on_actionOpen_File_triggered()
         tr("Loaded %1 files").arg(fileNames.size()), 3000);
 }
 
-
+/**
+ * @brief Opens the item options dialog for the currently selected tree item.
+ */
 void MainWindow::on_pushButtonOptions_clicked()
 {
     QModelIndex index = ui->treeView->currentIndex();
@@ -177,7 +200,9 @@ void MainWindow::on_pushButtonOptions_clicked()
     }
 }
 
-
+/**
+ * @brief Opens the item options dialog from the tree view context menu.
+ */
 void MainWindow::on_actionItem_Options_triggered()
 {
     QModelIndex index = ui->treeView->currentIndex();
@@ -203,14 +228,19 @@ void MainWindow::on_actionItem_Options_triggered()
         emit statusUpdateMessage("Dialog rejected", 0);
     }
 }
-
+/**
+ * @brief Clears the VTK scene and recursively renders all visible parts from the tree.
+ */
 void MainWindow::updateRender()
 {
     renderer->RemoveAllViewProps();
     updateRenderFromTree(QModelIndex());
     renderer->Render();
 }
-
+/**
+ * @brief Recursive helper to render model parts from the given tree index.
+ * @param index The QModelIndex representing a node in the model tree.
+ */
 void MainWindow::updateRenderFromTree(const QModelIndex &index)
 {
     int n = partList->rowCount(index);
@@ -226,7 +256,9 @@ void MainWindow::updateRenderFromTree(const QModelIndex &index)
         updateRenderFromTree(child);
     }
 }
-
+/**
+ * @brief Opens a folder, loads all STL files within it, and adds them under the selected tree node.
+ */
 void MainWindow::on_actionOpen_Folder_triggered()
 {
     QString dir = QFileDialog::getExistingDirectory(
@@ -270,7 +302,9 @@ void MainWindow::on_actionOpen_Folder_triggered()
         );
 }
 
-
+/**
+ * @brief Deletes the currently selected item from the model tree and updates the render view.
+ */
 void MainWindow::on_pushButtonDelete_clicked()
 {
     QModelIndex index = ui->treeView->currentIndex();
@@ -291,7 +325,9 @@ void MainWindow::on_pushButtonDelete_clicked()
 
     emit statusUpdateMessage("'" + partName + "' deleted", 0);
 }
-
+/**
+ * @brief Updates lighting in the VTK scene with key, fill, and back lights.
+ */
 void MainWindow::updateLight()
 {
     renderer->SetAmbient(0.2, 0.2, 0.2);

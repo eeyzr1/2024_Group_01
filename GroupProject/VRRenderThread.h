@@ -1,11 +1,12 @@
-/**		@file VRRenderThread.h
-  *
-  *		EEEE2046 - Software Engineering & VR Project
-  *
-  *		Template to add VR rendering to your application.
-  *
-  *		P Evans 2022
-  */
+/**
+ * @file VRRenderThread.h
+ * @brief Declaration of the VRRenderThread class for multithreaded OpenVR rendering.
+ * @details This class handles VR rendering in a separate thread using VTK's OpenVR module and Qt's QThread.
+ *          It enables asynchronous control and animation of 3D actors in a virtual scene.
+ * @version 1.0.0
+ * @date 2025-05-12/2022
+ * @author Woojin, Zhixing, Zhiyuan/Paul
+ */
 #ifndef VR_RENDER_THREAD_H
 #define VR_RENDER_THREAD_H
 
@@ -33,11 +34,19 @@
  * takes control of this thread to enable VR, it can callback to a function in the class to check to see
  * if the user has requested any changes
  */
+/**
+ * @class VRRenderThread
+ * @brief Thread class for managing a VTK OpenVR render loop separate from the GUI.
+ * @details Inherits from QThread to support background processing, and manages VTK VR actors and interactions.
+ */
 class VRRenderThread : public QThread {
     Q_OBJECT
 
 public:
     /** List of command names */
+    /**
+     * @brief Enumeration of command types to issue to the rendering thread.
+     */
     enum {
         END_RENDER,
         ROTATE_X,
@@ -46,60 +55,58 @@ public:
     } Command;
 
 
-    /**  Constructor
-      */
+    /**
+     * @brief Constructs the VRRenderThread instance.
+     * @param parent Optional parent QObject.
+     */
     VRRenderThread(QObject* parent = nullptr);
 
-    /**  Denstructor
-      */
+    /**
+     * @brief Destructor for cleaning up resources.
+     */
     ~VRRenderThread();
 
-    /** This allows actors to be added to the VR renderer BEFORE the VR
-      * interactor has been started 
+
+    /**
+     * @brief Adds a VTK actor to be rendered by the thread before VR is started.
+     * @param actor Pointer to the VTK actor.
      */
     void addActorOffline(vtkActor* actor);
 
 
-    /** This allows commands to be issued to the VR thread in a thread safe way. 
-      * Function will set variables within the class to indicate the type of
-      * action / animation / etc to perform. The rendering thread will then impelement this.
-      */
+    /**
+     * @brief Issues a rendering command to the thread safely.
+     * @param cmd Command type.
+     * @param value Associated value (e.g., rotation angle).
+     */
     void issueCommand( int cmd, double value );
 
 
 protected:
-    /** This is a re-implementation of a QThread function 
-      */
+    /**
+     * @brief Re-implemented thread run method that initializes and executes the VR render loop.
+     */
     void run() override;
 
 private:
-    /* Standard VTK VR Classes */
-    vtkSmartPointer<vtkOpenVRRenderWindow>              window;
-    vtkSmartPointer<vtkOpenVRRenderWindowInteractor>    interactor;
-    vtkSmartPointer<vtkOpenVRRenderer>                  renderer;
-    vtkSmartPointer<vtkOpenVRCamera>                    camera;
+    vtkSmartPointer<vtkOpenVRRenderWindow> window;              /**< VR render window */
+    vtkSmartPointer<vtkOpenVRRenderWindowInteractor> interactor;/**< VR input interactor */
+    vtkSmartPointer<vtkOpenVRRenderer> renderer;                /**< Scene renderer */
+    vtkSmartPointer<vtkOpenVRCamera> camera;                    /**< Active VR camera */
 
-    /* Use to synchronise passing of data to VR thread */
-    QMutex                                              mutex;      
-    QWaitCondition                                      condition;
+    QMutex mutex;                                               /**< Synchronization mutex */
+    QWaitCondition condition;                                   /**< Synchronization wait condition */
 
-    /** List of actors that will need to be added to the VR scene */
-    vtkSmartPointer<vtkActorCollection>                 actors;
+    vtkSmartPointer<vtkActorCollection> actors;                 /**< Collection of actors to render */
 
-    /** A timer to help implement animations and visual effects */
-    std::chrono::time_point<std::chrono::steady_clock>  t_last;
+    std::chrono::time_point<std::chrono::steady_clock> t_last; /**< Timestamp for animation timing */
 
-    /** This will be set to false by the constructor, if it is set to true
-      * by the GUI then the rendering will end 
-      */
-    bool                                                endRender;
+    bool endRender;                                             /**< Flag to signal render loop termination */
 
-    /* Some variables to indicate animation actions to apply.
-     *
-     */
-    double rotateX;         /*< Degrees to rotate around X axis (per time-step) */
-    double rotateY;         /*< Degrees to rotate around Y axis (per time-step) */
-    double rotateZ;         /*< Degrees to rotate around Z axis (per time-step) */
+    double rotateX; /**< Rotation amount around X axis (degrees) */
+    double rotateY; /**< Rotation amount around Y axis (degrees) */
+    double rotateZ; /**< Rotation amount around Z axis (degrees) */
+};
 };
 
 

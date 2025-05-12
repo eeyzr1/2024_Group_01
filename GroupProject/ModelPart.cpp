@@ -1,11 +1,11 @@
-/**     @file ModelPart.cpp
-  *
-  *     EEEE2076 - Software Engineering & VR Project
-  *
-  *     Template for model parts that will be added as treeview items
-  *
-  *     P Evans 2022
-  */
+/**
+ * @file ModelPart.cpp
+ * @brief Implementation of the ModelPart class for representing tree view elements and VTK-rendered parts.
+ * @details This file defines the functionality of model parts including hierarchy, rendering, filtering, and color control.
+ * @version 1.0.0
+ * @author Woojin, Zhixing, Zhiyuan/Paul
+ * @date 2025-05-12/2022
+ */
 
 #include "ModelPart.h"
 
@@ -21,7 +21,11 @@
 #include <vtkShrinkFilter.h>
 
 
-
+/**
+ * @brief Constructor for ModelPart.
+ * @param data List of property values.
+ * @param parent Pointer to the parent ModelPart in the tree.
+ */
 ModelPart::ModelPart(const QList<QVariant>& data, ModelPart* parent )
     : m_itemData(data), m_parentItem(parent), isVisible(true),
     clipFilter(false), shrinkFilter(false),
@@ -30,12 +34,17 @@ ModelPart::ModelPart(const QList<QVariant>& data, ModelPart* parent )
     /* You probably want to give the item a default colour */
 }
 
-
+/**
+ * @brief Destructor. Cleans up all child items.
+ */
 ModelPart::~ModelPart() {
     qDeleteAll(m_childItems);
 }
 
-
+/**
+ * @brief Adds a child ModelPart to this part.
+ * @param item Pointer to the new child item.
+ */
 void ModelPart::appendChild( ModelPart* item ) {
     /* Add another model part as a child of this part
      * (it will appear as a sub-branch in the treeview)
@@ -44,7 +53,11 @@ void ModelPart::appendChild( ModelPart* item ) {
     m_childItems.append(item);
 }
 
-
+/**
+ * @brief Retrieves the child item at the given row.
+ * @param row Index of the child to retrieve.
+ * @return Pointer to the child ModelPart, or nullptr if out of range.
+ */
 ModelPart* ModelPart::child( int row ) {
     /* Return pointer to child item in row below this item.
      */
@@ -52,20 +65,28 @@ ModelPart* ModelPart::child( int row ) {
         return nullptr;
     return m_childItems.at(row);
 }
-
+/**
+ * @brief Returns the number of child items.
+ */
 int ModelPart::childCount() const {
     /* Count number of child items
      */
     return m_childItems.count();
 }
 
-
+/**
+ * @brief Returns the number of columns this part holds.
+ */
 int ModelPart::columnCount() const {
     /* Count number of columns (properties) that this item has.
      */
     return m_itemData.count();
 }
-
+/**
+ * @brief Retrieves the data for a specific column.
+ * @param column Column index.
+ * @return The data value.
+ */
 QVariant ModelPart::data(int column) const {
     /* Return the data associated with a column of this item 
      *  Note on the QVariant type - it is a generic placeholder type
@@ -77,7 +98,11 @@ QVariant ModelPart::data(int column) const {
     return m_itemData.at(column);
 }
 
-
+/**
+ * @brief Sets the data for a specific column.
+ * @param column Column index.
+ * @param value New data value.
+ */
 void ModelPart::set(int column, const QVariant &value) {
     /* Set the data associated with a column of this item 
      */
@@ -87,12 +112,16 @@ void ModelPart::set(int column, const QVariant &value) {
     m_itemData.replace(column, value);
 }
 
-
+/**
+ * @brief Returns the parent item in the tree hierarchy.
+ */
 ModelPart* ModelPart::parentItem() {
     return m_parentItem;
 }
 
-
+/**
+ * @brief Returns the index of this item in its parent's child list.
+ */
 int ModelPart::row() const {
     /* Return the row index of this item, relative to it's parent.
      */
@@ -100,13 +129,20 @@ int ModelPart::row() const {
         return m_parentItem->m_childItems.indexOf(const_cast<ModelPart*>(this));
     return 0;
 }
-
+/**
+ * @brief Sets the display color of this part.
+ * @param R Red component [0–255].
+ * @param G Green component [0–255].
+ * @param B Blue component [0–255].
+ */
 void ModelPart::setColour(const unsigned char R, const unsigned char G, const unsigned char B) {
     /* This is a placeholder function that you will need to modify if you want to use it */
     colour.Set(R, G, B);
     /* As the name suggests ... */
 }
-
+/**
+ * @brief Returns the red component of the current color.
+ */
 unsigned char ModelPart::getColourR() {
     /* This is a placeholder function that you will need to modify if you want to use it */
     
@@ -114,6 +150,9 @@ unsigned char ModelPart::getColourR() {
     return colour.GetRed();
 }
 
+/**
+ * @brief Returns the green component of the current color.
+ */
 unsigned char ModelPart::getColourG() {
     /* This is a placeholder function that you will need to modify if you want to use it */
     
@@ -121,7 +160,9 @@ unsigned char ModelPart::getColourG() {
     return colour.GetGreen();
 }
 
-
+/**
+ * @brief Returns the blue component of the current color.
+ */
 unsigned char ModelPart::getColourB() {
    /* This is a placeholder function that you will need to modify if you want to use it */
     
@@ -130,12 +171,18 @@ unsigned char ModelPart::getColourB() {
 }
 
 
+/**
+ * @brief Sets the visibility of this model part.
+ * @param visible Boolean value indicating visibility.
+ */
 void ModelPart::setVisible(bool visible) {
     /* This is a placeholder function that you will need to modify if you want to use it */
     isVisible=visible;
     /* As the name suggests ... */
 }
-
+/**
+ * @brief Returns the visibility state.
+ */
 bool ModelPart::visible() {
     /* This is a placeholder function that you will need to modify if you want to use it */
     
@@ -143,6 +190,10 @@ bool ModelPart::visible() {
     return isVisible;
 }
 
+/**
+ * @brief Loads an STL file and creates associated VTK mapper and actor.
+ * @param fileName Path to the STL file.
+ */
 void ModelPart::loadSTL( QString fileName ) {
     /* This is a placeholder function that you will need to modify if you want to use it */
 
@@ -169,7 +220,9 @@ void ModelPart::loadSTL( QString fileName ) {
         );
     actor->SetVisibility(isVisible);
 }
-
+/**
+ * @brief Returns the current VTK actor for GUI rendering.
+ */
 vtkSmartPointer<vtkActor> ModelPart::getActor() {
     /* This is a placeholder function that you will need to modify if you want to use it */
     return actor;
@@ -177,7 +230,10 @@ vtkSmartPointer<vtkActor> ModelPart::getActor() {
      * part to be rendered.
      */
 }
-
+/**
+ * @brief Creates a new VTK actor for VR rendering, using a fresh mapper.
+ * @return Pointer to the new VTK actor.
+ */
 vtkActor* ModelPart::getNewActor() {
     /* This is a placeholder function that you will need to modify if you want to use it
      * 
@@ -210,7 +266,9 @@ vtkActor* ModelPart::getNewActor() {
     return newActor;
     
 }
-
+/**
+ * @brief Applies VTK filters (clip, shrink) based on current filter flags.
+ */
 void ModelPart::setFilter()
 {
     if (!file) {
@@ -269,23 +327,39 @@ void ModelPart::setFilter()
         );
     actor->SetVisibility(isVisible);
 }
-
+/**
+ * @brief Returns whether clipping is enabled.
+ */
 bool ModelPart::clip() {
     return clipFilter;
 }
-
+/**
+ * @brief Returns whether shrinking is enabled.
+ */
 bool ModelPart::shrink() {
     return shrinkFilter;
 }
 
+/**
+ * @brief Enables or disables clipping filter.
+ * @param clip Boolean toggle.
+ */
 void ModelPart::setClip(bool clip) {
     clipFilter = clip;
 }
 
+/**
+ * @brief Enables or disables shrink filter.
+ * @param shrink Boolean toggle.
+ */
 void ModelPart::setShrink(bool shrink) {
     shrinkFilter = shrink;
 }
-
+/**
+ * @brief Removes and returns a child at the specified row.
+ * @param row Row index of the child.
+ * @return Pointer to the removed child, or nullptr if invalid.
+ */
 ModelPart* ModelPart::takeChild(int row) {
     if (row < 0 || row >= m_childItems.size())
         return nullptr;

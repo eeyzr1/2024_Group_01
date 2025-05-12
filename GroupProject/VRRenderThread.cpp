@@ -1,11 +1,13 @@
-/**		@file VRRenderThread.cpp
-  *
-  *		EEEE2046 - Software Engineering & VR Project
-  *
-  *		Template to add VR rendering to your application.
-  *
-  *		P Evans 2022
-  */
+/**
+ * @file VRRenderThread.cpp
+ * @brief Implementation of the VRRenderThread class for VTK OpenVR rendering in a separate thread.
+ * @details Handles background VR rendering using a separate thread to prevent blocking the main GUI thread.
+ *          Supports actor registration, command handling, and basic animation such as rotation.
+ * @version 1.0.0
+ * @date 2025-05-12/2022
+ * @author Woojin, Zhixing, Zhiyuan/Paul
+ */
+
 
 #include "VRRenderThread.h"
 
@@ -33,6 +35,10 @@
  * in the constructor, as it will take control of the main thread to handle the VR interaction (headset 
  * rotation etc. This means that a second thread is needed to handle the VR.
  */
+/**
+ * @brief Constructor for the VRRenderThread.
+ * @param parent Pointer to the parent QObject.
+ */
 VRRenderThread::VRRenderThread( QObject* parent ) {
 	/* Initialise actor list */
 	actors = vtkActorCollection::New();
@@ -49,11 +55,19 @@ VRRenderThread::VRRenderThread( QObject* parent ) {
  * not deallocated properly then there will be a memory leak, where the program's total memory
  * usage will increase for each start/stop thread cycle.
  */
+/**
+ * @brief Destructor for the VRRenderThread.
+ * @details Ensures proper deallocation to avoid memory leaks across start/stop cycles.
+ */
 VRRenderThread::~VRRenderThread() {
 
 }
 
 
+/**
+ * @brief Adds a VTK actor to the render list before the thread starts.
+ * @param actor Pointer to the VTK actor to add.
+ */
 void VRRenderThread::addActorOffline( vtkActor* actor ) {
 
 	/* Check to see if render thread is running */
@@ -70,7 +84,11 @@ void VRRenderThread::addActorOffline( vtkActor* actor ) {
 	}
 }
 
-
+/**
+ * @brief Issues a rendering command to the thread.
+ * @param cmd Command identifier (e.g., rotation axis).
+ * @param value Associated value (e.g., rotation angle).
+ */
 
 void VRRenderThread::issueCommand( int cmd, double value ) {
 
@@ -98,6 +116,11 @@ void VRRenderThread::issueCommand( int cmd, double value ) {
 /* This function runs in a separate thread. This means that the program 
  * can fork into two separate execution paths. This thread is triggered by
  * calling VRRenderThread::start()
+ */
+/**
+ * @brief Entry point of the VR render thread.
+ * @details Initializes the VTK OpenVR rendering pipeline, adds actors, and enters a loop
+ *          for rendering frames and applying transformations at defined intervals.
  */
 void VRRenderThread::run() {
 	/* You might want to edit the 3D model once VR has started, however VTK is not "thread safe". 

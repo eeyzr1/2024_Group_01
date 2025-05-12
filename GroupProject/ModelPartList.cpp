@@ -1,15 +1,20 @@
-/**     @file ModelPartList.h
-  *
-  *     EEEE2076 - Software Engineering & VR Project
-  *
-  *     Template for model part list that will be used to create the trewview.
-  *
-  *     P Evans 2022
-  */
+/**
+ * @file ModelPartList.cpp
+ * @brief Implementation of the ModelPartList class used to manage the model tree structure.
+ * @details This class implements a custom tree model using Qt's QAbstractItemModel,
+ *          with support for inserting, removing, and retrieving model parts for use in a tree view.
+ * @version 1.0.0
+ * @author Woojin, Zhixing, Zhiyuan/Paul
+ * @date 2025-05-12/2022
+ */
 
 #include "ModelPartList.h"
 #include "ModelPart.h"
-
+/**
+ * @brief Constructs the model with an optional name and parent object.
+ * @param data Root node label.
+ * @param parent Optional QObject parent.
+ */
 ModelPartList::ModelPartList( const QString& data, QObject* parent ) : QAbstractItemModel(parent) {
     /* Have option to specify number of visible properties for each item in tree - the root item
      * acts as the column headers
@@ -18,19 +23,25 @@ ModelPartList::ModelPartList( const QString& data, QObject* parent ) : QAbstract
 }
 
 
-
+/**
+ * @brief Destructor, deletes root item and its children.
+ */
 ModelPartList::~ModelPartList() {
     delete rootItem;
 }
 
-
+/**
+ * @brief Returns the number of columns from the root item.
+ */
 int ModelPartList::columnCount( const QModelIndex& parent ) const {
     Q_UNUSED(parent);
 
     return rootItem->columnCount();
 }
 
-
+/**
+ * @brief Retrieves data from a specific index, only when display role is requested.
+ */
 QVariant ModelPartList::data( const QModelIndex& index, int role ) const {
     /* If the item index isnt valid, return a new, empty QVariant (QVariant is generic datatype
      * that could be any valid QT class) */
@@ -51,7 +62,9 @@ QVariant ModelPartList::data( const QModelIndex& index, int role ) const {
     return item->data( index.column() );
 }
 
-
+/**
+ * @brief Returns item flags for the given index.
+ */
 Qt::ItemFlags ModelPartList::flags( const QModelIndex& index ) const {
     if( !index.isValid() )
         return Qt::NoItemFlags;
@@ -59,7 +72,9 @@ Qt::ItemFlags ModelPartList::flags( const QModelIndex& index ) const {
     return QAbstractItemModel::flags( index );
 }
 
-
+/**
+ * @brief Returns the header label at a given section and orientation.
+ */
 QVariant ModelPartList::headerData( int section, Qt::Orientation orientation, int role ) const {
     if( orientation == Qt::Horizontal && role == Qt::DisplayRole )
         return rootItem->data( section );
@@ -67,7 +82,9 @@ QVariant ModelPartList::headerData( int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-
+/**
+ * @brief Returns a model index for the given row and column under the specified parent.
+ */
 QModelIndex ModelPartList::index(int row, int column, const QModelIndex& parent) const {
     ModelPart* parentItem;
     
@@ -85,6 +102,9 @@ QModelIndex ModelPartList::index(int row, int column, const QModelIndex& parent)
 }
 
 
+/**
+ * @brief Returns the parent model index for a given child index.
+ */
 QModelIndex ModelPartList::parent( const QModelIndex& index ) const {
     if (!index.isValid())
         return QModelIndex();
@@ -98,7 +118,9 @@ QModelIndex ModelPartList::parent( const QModelIndex& index ) const {
     return createIndex( parentItem->row(), 0, parentItem );
 }
 
-
+/**
+ * @brief Returns the number of child rows under a parent index.
+ */
 int ModelPartList::rowCount( const QModelIndex& parent ) const {
     ModelPart* parentItem;
     if( parent.column() > 0 )
@@ -113,12 +135,20 @@ int ModelPartList::rowCount( const QModelIndex& parent ) const {
 }
 
 
+/**
+ * @brief Returns a pointer to the root ModelPart item.
+ */
 ModelPart* ModelPartList::getRootItem() {
     return rootItem; 
 }
 
 
-
+/**
+ * @brief Appends a new child to the model under a given parent and returns its index.
+ * @param parent Index of the parent item.
+ * @param data List of data values for the new part.
+ * @return Index of the newly created child item.
+ */
 QModelIndex ModelPartList::appendChild(QModelIndex& parent, const QList<QVariant>& data) {      
     ModelPart* parentPart;
 
@@ -143,7 +173,13 @@ QModelIndex ModelPartList::appendChild(QModelIndex& parent, const QList<QVariant
 
     return child;
 }
-
+/**
+ * @brief Removes one or more child items from a given parent.
+ * @param row Starting row of items to remove.
+ * @param count Number of rows to remove.
+ * @param parent Parent model index.
+ * @return True if rows were removed successfully.
+ */
 bool ModelPartList::removeRows(int row, int count, const QModelIndex &parent) {
     if (!hasIndex(row, 0, parent))
         return false;
