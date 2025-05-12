@@ -213,6 +213,10 @@ vtkActor* ModelPart::getNewActor() {
 
 void ModelPart::setFilter()
 {
+    if (!file) {
+        return;
+    }
+
     if (clipFilter && shrinkFilter) {
 
         vtkSmartPointer<vtkPlane> planeLeft =
@@ -282,3 +286,8 @@ void ModelPart::setShrink(bool shrink) {
     shrinkFilter = shrink;
 }
 
+ModelPart* ModelPart::takeChild(int row) {
+    if (row < 0 || row >= m_childItems.size())
+        return nullptr;
+    return m_childItems.takeAt(row);
+}

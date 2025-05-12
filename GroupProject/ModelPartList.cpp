@@ -144,3 +144,20 @@ QModelIndex ModelPartList::appendChild(QModelIndex& parent, const QList<QVariant
     return child;
 }
 
+bool ModelPartList::removeRows(int row, int count, const QModelIndex &parent) {
+    if (!hasIndex(row, 0, parent))
+        return false;
+
+    beginRemoveRows(parent, row, row + count - 1);
+
+    ModelPart* parentItem = parent.isValid()
+                                ? static_cast<ModelPart*>(parent.internalPointer())
+                                : rootItem;
+    for (int i = 0; i < count; ++i) {
+        ModelPart* child = parentItem->takeChild(row);
+        delete child;
+    }
+
+    endRemoveRows();
+    return true;
+}
